@@ -3,6 +3,7 @@ package pages;
 import core.PageCore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -19,17 +20,17 @@ public class GitHubRepoList extends PageCore {
     }
 
     public String getInstanceURL() {
-        String instance, proj, url = null;
+        String instance, org, url = null;
         try {
             instance = getPropertyValue("auturl");
-            proj = getPropertyValue("org");
+            org = getOrg();
             if (!instance.matches(".*[/]$"))
                 instance = instance + "/";
-            if (instance.isEmpty() || proj.isEmpty()) {
+            if (instance.isEmpty() || org.isEmpty()) {
                 LOGGER.warn("No instance is provided. Terminating execution.");
                 System.exit(-1);
             }
-            url = instance + proj;
+            url = instance + org;
         } catch (InvalidPathException | IOException e) {
             e.printStackTrace();
         }
@@ -41,21 +42,38 @@ public class GitHubRepoList extends PageCore {
         driver.get(getInstanceURL());
     }
 
-    public WebElement displayRepositoryTab() {
-        return fluentWaitWithCustomTimeout("repositoriesTab", 3);
+    public WebElement displayRepositoryTabForOrg() {
+        return fluentWaitWithCustomTimeout("repositoriesTabForOrg", 3);
+    }
+
+    public WebElement displayRepositoryTabForUser() {
+        return fluentWaitWithCustomTimeout("repositoriesTabForUser", 3);
     }
 
     public String displayOrgName() {
         return getTextFromCurrentElement("orgName", 2);
     }
 
-    public void openRepositoryTab() {
-        displayRepositoryTab().click();
-        fluentWaitWithCustomTimeout("searchRepoField", 4);
+    public WebElement showProfilePhoto() throws NoSuchElementException {
+        return driver.findElement(locatorParser.getElementLocator("profileImage"));
     }
 
-    public boolean displaySearchField() {
-        return checkIfElementIsPresent("searchRepoField");
+    public boolean openRepoTab() {
+        try {
+            if (showProfilePhoto().isDisplayed()) {
+                displayRepositoryTabForUser().click();
+                flag=true;
+            }
+        } catch (NoSuchElementException e) {
+            flag=false;
+            displayRepositoryTabForOrg().click();
+        }
+        fluentWaitWithCustomTimeout("searchRepoField", 4);
+        return flag;
+    }
+
+    public boolean verifyIfNoRepositoriesPresent() {
+        return driver.findElement(locatorParser.getElementLocator("noReposPresent")).isDisplayed();
     }
 
     public LinkedHashMap<String, String> getRepositoryNameAndDescriptionsFromUI() {
@@ -70,17 +88,24 @@ public class GitHubRepoList extends PageCore {
         repositoriesWithoutDesc = originalListNames;
         for (int i = 0; i < repositoriesWithDesc.size(); i++) {
             if (repositoriesWithDesc.size() == repoDesc.size())
-                repositoryDetails_UI.put(formatRepoNamesRemoveArchivedString(repositoriesWithDesc,i)
-                        , formatRepoNamesRemoveArchivedString(repoDesc,i));
+                repositoryDetails_UI.put(formatRepoNamesRemoveArchivedString(repositoriesWithDesc, i)
+                        , formatRepoNamesRemoveArchivedString(repoDesc, i));
         }
         for (WebElement element : repositoriesWithoutDesc) {
             repositoryDetails_UI.putIfAbsent(element.getText(), null);
         }
+        //LOGGER.info("Map from UI:::"+repositoryDetails_UI);
         return repositoryDetails_UI;
     }
 
-    private String formatRepoNamesRemoveArchivedString(List<WebElement> list,int index)
-    {
+    public String getOrg() throws IOException {
+        String org = System.getProperty("org");
+        if (org == null || org.isEmpty())
+            org = getPropertyValue("org");
+        return org;
+    }
+
+    private String formatRepoNamesRemoveArchivedString(List<WebElement> list, int index) {
         return list.get(index).getText().replaceAll(" Archived", "");
     }
 }

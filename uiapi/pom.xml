@@ -9,19 +9,17 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>uiapi</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <defaultSuiteFiles>testng.xml</defaultSuiteFiles>
+    <defaultSuiteFiles>src/test/resources/testng.xml</defaultSuiteFiles>
     <suiteXmlFile>${defaultSuiteFiles}</suiteXmlFile>
     <maven-help-plugin.version>3.2.0</maven-help-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
     <selenium-java.version>4.0.0-alpha-7</selenium-java.version>
     <testng.version>7.4.0</testng.version>
-    <rest-assured.version>4.3.3</rest-assured.version>
+    <rest-assured.version>4.4.0</rest-assured.version>
     <log4j-api.version>2.14.1</log4j-api.version>
     <log4j-core.version>2.14.1</log4j-core.version>
     <org.json.version>20210307</org.json.version>
@@ -29,19 +27,7 @@
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
   </properties>
-  <profiles>
-    <!--default-profile-->
-    <profile>
-      <id>default</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <env>default</env>
-        <profileName>default-profile</profileName>
-      </properties>
-    </profile>
-  </profiles>
+
   <dependencies>
     <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
     <dependency>
@@ -79,90 +65,27 @@
   </dependencies>
   <build>
     <filters>
-      <filter>${project.basedir}/src/main/resources/envConfig.${env}.properties</filter>
+      <filter>src/main/resources//envConfig.properties</filter>
     </filters>
-    <testOutputDirectory>${project.basedir}/target/classes</testOutputDirectory>
+    <testOutputDirectory>target/classes</testOutputDirectory>
     <resources>
       <resource>
-        <directory>${project.basedir}/src/main/resources/</directory>
+        <directory>src/main/resources</directory>
         <filtering>true</filtering>
         <includes>
           <include>*.properties</include>
-          <include>core.LoadEnvProperties</include>
+          <include>src.main.java.core.LoadEnvProperties</include>
           <include>log4j2.xml</include>
         </includes>
       </resource>
     </resources>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <testFailureIgnore>false</testFailureIgnore>
-          <suiteXmlFiles>
-            <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
-          </suiteXmlFiles>
-          <systemPropertyVariables>
-            <profileName>${profileName}</profileName>
-          </systemPropertyVariables>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
-  <!--<build>
-    <pluginManagement>&lt;!&ndash; lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) &ndash;&gt;
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
-        &lt;!&ndash; clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle &ndash;&gt;
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        &lt;!&ndash; default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging &ndash;&gt;
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-        </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-        </plugin>
-        &lt;!&ndash; site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle &ndash;&gt;
-        <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.7.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>${maven-surefire-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
-  </build>-->
-
+  </build>
 </project>

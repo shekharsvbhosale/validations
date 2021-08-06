@@ -3,6 +3,7 @@ package validations;
 import config.TestCore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.NoSuchElementException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.GitHubRepoList;
@@ -18,50 +19,54 @@ public class GitHubRepoListTests extends TestCore {
     @Test(priority = 0)
     public void openInstance() throws IOException {
         GitHubRepoList gitHubRepoList = new GitHubRepoList(driver);
-        String org = GitHubRepoList.getPropertyValue("org");
-        //System.out.println("Selected org:: "+org);
+        String org = gitHubRepoList.getOrg();
+        System.out.println("Selected org:: " + org);
         gitHubRepoList.openInstance();
         String title = gitHubRepoList.getTitleOfPage();
         Assert.assertTrue(title.contains(org.substring(1, 3)));
         LOGGER.info("Correct instance is opened: " + gitHubRepoList.getCurrentURL());
-        Assert.assertTrue(gitHubRepoList.displayOrgName().contains(org.substring(1, 3)));
-        LOGGER.info("Correct organization name is displayed.");
     }
 
-    @Test(priority = 1, dependsOnMethods = {"checkIfOrgHasNoRepositories"})
+    @Test(priority = 1)
     public void openRepositoriesTab() throws IOException {
         GitHubRepoList gitHubRepoList = new GitHubRepoList(driver);
-        LOGGER.info("Opening repository tab...");
-        if (flagValue) {
-            gitHubRepoList.openRepositoryTab();
-            String expectedURL = GitHubRepoList.getPropertyValue("auturl") + "/orgs/"
-                    + GitHubRepoList.getPropertyValue("org") + "/repositories";
-            Assert.assertEquals(gitHubRepoList.getCurrentURL(), expectedURL);
-            LOGGER.info("Correct repository list page displayed.");
-        } else
-            LOGGER.info("This organization doesn't have any public repositories yet.");
+        String org = gitHubRepoList.getOrg();
+        try
+        {
+            Assert.assertTrue(gitHubRepoList.verifyIfNoRepositoriesPresent());
+            try
+            {
+                gitHubRepoList.openRepoTab();
+            }catch (NoSuchElementException e)
+            {
+                LOGGER.info("Opening repository tab...");
+                gitHubRepoList.displayRepositoryTabForOrg().click();
+            }
+        }catch (NoSuchElementException e)
+        {
+            LOGGER.warn(org+" has one or more repositories.");
+        }
+        String expectedURL;
+        if(!gitHubRepoList.openRepoTab())
+            expectedURL = GitHubRepoList.getPropertyValue("auturl") + "/orgs/"
+                    + org + "/repositories";
+        else
+            expectedURL = GitHubRepoList.getPropertyValue("auturl") + "/"+ org + "?tab=repositories";
+        Assert.assertEquals(gitHubRepoList.getCurrentURL(), expectedURL);
+
+        LOGGER.info("Repositories tab is opened.");
     }
 
     @Test(priority = 2)
-    public void checkIfOrgHasNoRepositories() throws IOException {
-        GitHubRepoList gitHubRepoList = new GitHubRepoList(driver);
-        if (gitHubRepoList.displaySearchField()) {
-            flagValue = true;
-            LOGGER.info("Provided organization has one or more than one repositories.");
-        } else
-            LOGGER.info("This organization has no repositories.");
-        Assert.assertEquals(gitHubRepoList.getCurrentURL(), gitHubRepoList.getInstanceURL());
-    }
-
-    @Test(priority = 3)
     public void compareRepositoryNamesWithAPIResponse() throws IOException {
         GitHubRepoList gitHubRepoList = new GitHubRepoList(driver);
         ResponseParser responseParser = new ResponseParser();
-        String org = GitHubRepoList.getPropertyValue("org");
+        String org = gitHubRepoList.getOrg();
         ArrayList<String> uilist = new ArrayList<>(gitHubRepoList.getRepositoryNameAndDescriptionsFromUI().keySet());
         Collections.sort(uilist);
         ArrayList<String> api = new ArrayList<>(responseParser.getRepositoryNameAndDescriptionFromAPI(org).keySet());
         Collections.sort(api);
+        LOGGER.info("Validating UI and API response...");
         Assert.assertTrue(uilist.equals(api));
         LOGGER.info("Information (repository name and it's description) shown on UI matches, " +
                 "which is retrieved from the API response.");

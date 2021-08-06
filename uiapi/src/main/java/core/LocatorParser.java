@@ -30,7 +30,7 @@ public class LocatorParser {
             case "tagName":
                 locator = By.tagName(locatorValue);
                 break;
-            case "linkText":
+            case "link":
                 locator = By.linkText(locatorValue);
                 break;
             case "partialLink":

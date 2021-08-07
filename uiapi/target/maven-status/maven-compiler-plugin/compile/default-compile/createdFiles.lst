@@ -1,6 +1,0 @@
-core\LoadEnvProperties.class
-core\LocatorParser.class
-core\PageCore.class
-utilities\ResponseParser.class
-core\UIElementsImpl.class
-pages\GitHubRepoList.class

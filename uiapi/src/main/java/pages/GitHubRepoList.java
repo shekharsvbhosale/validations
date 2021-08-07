@@ -51,11 +51,6 @@ public class GitHubRepoList extends PageCore {
 
     public boolean openRepoTab() {
         displayRepositoryTabForOrg().click();
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         fluentWaitWithCustomTimeout("searchRepoField", 6);
         return false;
     }

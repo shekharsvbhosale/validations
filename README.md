@@ -20,7 +20,7 @@ This project is based out of Selenium WebDriver and TestNG. Additionally, you wo
   * [PageObjects Pattern](#pageobjects-pattern)
   * [Object Repository](#object-repository)
   * [Configuration Handler](#configuration-handler)
-  * [Build Automation System: Maven](#build-automation-system:-maven)
+  * [Build Automation Using Maven](#build-automation-using-maven)
   * [Utilities](#utilities)
   * [Logging Mechanism](#logging-mechanism)
   * [HTML Reporting](#html-reporting)
@@ -115,7 +115,7 @@ public String getOrg() {
 ```
 
 
-## Build Automation System: Maven 
+## Build Automation Using Maven 
 * Project uses Maven as build management tool.
 * Dependency versions are stored as `${env}` variables for easy maintenance. For example
 ```xml
@@ -136,7 +136,7 @@ public String getOrg() {
 > `mvn clean` -Dbrowser="firefox" -Dorg="apache"
 >
 > If org is not provided, execution will proceed with default org on provided browser in this case.
-> > `mvn clean` -Dbrowser="edge"
+> `mvn clean` -Dbrowser="edge"
 
 ## Utilities
 

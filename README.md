@@ -1,7 +1,7 @@
 # Goal
 Validate names and descriptions of repositories displayed in repository tab of GitHub for provided organization. Default organization is set to `django` Comparison will be between the data shown on UI and data received in respective API response. 
 
-# Project Confiuration
+## Project Configuration
 This project is based out of Selenium WebDriver and TestNG. Additionally, you would need to have following apps / libraries configured on the machine where test would be run.
 - [Apache Maven 3.5+](https://maven.apache.org/)
 - [Java 8u171+](https://8u171.oracle.com/java/technologies/javase/javase8-archive-downloads.html)
@@ -133,11 +133,11 @@ public String getOrg() {
 > 
 > For custom configuration. This will proceeds with user provided inputs.
 >
-> `mvn clean` -Dbrowser="firefox" -Dorg="apache"
+> `mvn clean` -Dbrowser="firefox" -Dorg="apache" `install`
 >
 > If org is not provided, execution will proceed with default org on provided browser in this case.
 > 
-> `mvn clean` -Dbrowser="edge"
+> `mvn clean` -Dbrowser="edge" `install`
 
 ## Utilities
 

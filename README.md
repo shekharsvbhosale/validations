@@ -136,6 +136,7 @@ public String getOrg() {
 > `mvn clean` -Dbrowser="firefox" -Dorg="apache"
 >
 > If org is not provided, execution will proceed with default org on provided browser in this case.
+> 
 > `mvn clean` -Dbrowser="edge"
 
 ## Utilities

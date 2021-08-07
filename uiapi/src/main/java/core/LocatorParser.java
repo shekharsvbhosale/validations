@@ -1,10 +1,13 @@
 package core;
 
 import org.openqa.selenium.By;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+
+/*This class acts as backbone for implementing object repository.
+* Each locator is parsed based on the fixed set of supported locator names.
+* This class helps to bring better abstraction and easy maintenance of UI related page classes.*/
 
 public class LocatorParser {
     protected FileInputStream inputStream;

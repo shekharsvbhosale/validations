@@ -26,20 +26,32 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
+    <aspectj.version>1.9.6</aspectj.version>
+    <ashot-version>1.5.4</ashot-version>
+    <allure-testng-version>2.13.9</allure-testng-version>
+    <allure-maven.version>2.10.0</allure-maven.version>
+    <allure.version>2.13.9 </allure.version>
+    <allure-java-commons.version>2.13.0</allure-java-commons.version>
+    <jackson-databind.version>2.9.10</jackson-databind.version>
+    <headless>false</headless>
   </properties>
 
   <dependencies>
-    <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+      <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <version>${aspectj.version}</version>
+      </dependency>
+    <!-- https://mvnreposi  tory.com/artifact/org.seleniumhq.selenium/selenium-java -->
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
       <version>${selenium-java.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.testng</groupId>
-      <artifactId>testng</artifactId>
-      <version>${testng.version}</version>
-      <scope>test</scope>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-databind.version}</version>
     </dependency>
     <dependency>
       <groupId>io.rest-assured</groupId>
@@ -62,6 +74,28 @@
       <artifactId>log4j-core</artifactId>
       <version>${log4j-core.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>${testng.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-maven</artifactId>
+      <version>${allure-maven.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-java-commons</artifactId>
+      <version>${allure-java-commons.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-testng</artifactId>
+      <version>${allure-testng-version}</version>
+    </dependency>
   </dependencies>
   <build>
     <filters>
@@ -70,7 +104,7 @@
     <testOutputDirectory>target/classes</testOutputDirectory>
     <resources>
       <resource>
-        <directory>src/main/resources</directory>
+        <directory>src/main/resources,src/test/resources</directory>
         <filtering>true</filtering>
         <includes>
           <include>*.properties</include>
@@ -82,10 +116,48 @@
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <suiteXmlFiles>
+              <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
+            </suiteXmlFiles>
+            <argLine>
+              -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+            </argLine>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.aspectj</groupId>
+              <artifactId>aspectjweaver</artifactId>
+              <version>${aspectj.version}</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
   </build>
+  <reporting>
+    <excludeDefaults>true</excludeDefaults>
+    <plugins>
+      <plugin>
+        <groupId>io.qameta.allure</groupId>
+        <artifactId>allure-maven</artifactId>
+        <version>${allure-maven.version}</version>
+        <configuration>
+          <reportVersion>${allure.version}</reportVersion>
+          <outputDirectory>target/allure-results</outputDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>

@@ -6,16 +6,18 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import java.io.IOException;
 import java.time.Duration;
 
+/*This class is backbone of Test Execution. It provides abstract layer of common provisions to perform UI operations
+* for all UI pages.*/
+
 public class PageCore implements UIElementsImpl {
     public static LocatorParser locatorParser;
-    private static Logger LOGGER = LogManager.getLogger(PageCore.class);
+    private static final Logger LOGGER = LogManager.getLogger(PageCore.class);
     public static LoadEnvProperties loadEnvProperties;
-    public boolean flag;
 
+    //Load environment properties at first
     static {
         try {
             locatorParser = new LocatorParser(resourcePath + "props" + fileSeparator + "Locators.properties");
@@ -30,17 +32,20 @@ public class PageCore implements UIElementsImpl {
     public WebDriver driver;
     public WebDriverWait driverWait;
 
+    //Constructor to pass on current driver instance to next method/class
     public PageCore(WebDriver _driver) {
         this.driver = _driver;
         driverWait = new WebDriverWait(driver, Duration.ofSeconds(2));
     }
 
+    //Method to retrieve the value for provided key
     public static String getPropertyValue(String key) throws IOException {
         String filePath = resourcePath + "envConfig.properties";
         return (String) loadEnvProperties.loadEnvPropsData(filePath)
                 .get(key);
     }
 
+    //Method to wait for page elements
     public WebElement fluentWaitWithCustomTimeout(String locatorKey, int timeout) throws TimeoutException {
         By waitElement = locatorParser.getElementLocator(locatorKey);
         Wait<WebDriver> fluentWait = new FluentWait<>(driver)
@@ -50,15 +55,6 @@ public class PageCore implements UIElementsImpl {
         return fluentWait.until(driver -> driver.findElement(waitElement));
     }
 
-    public boolean checkIfElementIsPresent(String locator) {
-        return driver.findElements(locatorParser.getElementLocator(locator)).size() > 0;
-    }
-
-    public String getTextFromCurrentElement(String locator, int timeout) {
-        fluentWaitWithCustomTimeout(locator, timeout);
-        return driver.findElement(locatorParser.getElementLocator(locator)).getText();
-    }
-
     public String getTitleOfPage() {
         return driver.getTitle();
     }
@@ -66,4 +62,6 @@ public class PageCore implements UIElementsImpl {
     public String getCurrentURL() {
         return driver.getCurrentUrl();
     }
+
+
 }

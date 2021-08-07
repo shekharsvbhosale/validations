@@ -3,15 +3,15 @@ package pages;
 import core.PageCore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/*This class is implementation of all operations which are going to be executed to achieve the project goal.
+* which is validating UI and API data.*/
 public class GitHubRepoList extends PageCore {
     private static final Logger LOGGER = LogManager.getLogger(GitHubRepoList.class);
 
@@ -19,6 +19,9 @@ public class GitHubRepoList extends PageCore {
         super(driver);
     }
 
+    /*Instance URL is provided as property file, since it could change for on-premise platform, but endpoint will
+    remain same.
+    If instance is not provided, program execution can't proceed and so terminate execution.*/
     public String getInstanceURL() {
         String instance, org, url = null;
         try {
@@ -43,38 +46,30 @@ public class GitHubRepoList extends PageCore {
     }
 
     public WebElement displayRepositoryTabForOrg() {
-        return fluentWaitWithCustomTimeout("repositoriesTabForOrg", 3);
-    }
-
-    public WebElement displayRepositoryTabForUser() {
-        return fluentWaitWithCustomTimeout("repositoriesTabForUser", 3);
-    }
-
-    public String displayOrgName() {
-        return getTextFromCurrentElement("orgName", 2);
-    }
-
-    public WebElement showProfilePhoto() throws NoSuchElementException {
-        return driver.findElement(locatorParser.getElementLocator("profileImage"));
+        return fluentWaitWithCustomTimeout("repositoriesTabForOrg", 6);
     }
 
     public boolean openRepoTab() {
+        displayRepositoryTabForOrg().click();
         try {
-            if (showProfilePhoto().isDisplayed()) {
-                displayRepositoryTabForUser().click();
-                flag=true;
-            }
-        } catch (NoSuchElementException e) {
-            flag=false;
-            displayRepositoryTabForOrg().click();
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        fluentWaitWithCustomTimeout("searchRepoField", 4);
-        return flag;
+        fluentWaitWithCustomTimeout("searchRepoField", 6);
+        return false;
     }
 
+    /*Method to check if no repository message is displayed when there are no repositories present.*/
     public boolean verifyIfNoRepositoriesPresent() {
         return driver.findElement(locatorParser.getElementLocator("noReposPresent")).isDisplayed();
     }
+
+    /*This method is implemented to retrieve repository details like name and description which are shown on UI
+    * Names and descriptions are stored in different datasets
+    * Data for repositories with no description is stored in different dataset to ease further validation operations.
+    * Repository names with string 'Archived ' is formatted before storing in dataset.
+    * Repository descriptions which are null are formatted to store 'null_string' to ease further validation ops.*/
 
     public LinkedHashMap<String, String> getRepositoryNameAndDescriptionsFromUI() {
         LinkedHashMap<String, String> repositoryDetails_UI = new LinkedHashMap<>();
@@ -87,25 +82,32 @@ public class GitHubRepoList extends PageCore {
         originalListNames.removeAll(repositoriesWithDesc);
         repositoriesWithoutDesc = originalListNames;
         for (int i = 0; i < repositoriesWithDesc.size(); i++) {
-            if (repositoriesWithDesc.size() == repoDesc.size())
-                repositoryDetails_UI.put(formatRepoNamesRemoveArchivedString(repositoriesWithDesc, i)
-                        , formatRepoNamesRemoveArchivedString(repoDesc, i));
+            if (repositoriesWithDesc.size() == repoDesc.size()) {
+                repositoryDetails_UI.put(formatRepoNamesRemoveArchivedString(repositoriesWithDesc, i),
+                        formatRepoNamesRemoveArchivedString(repoDesc, i));
+            }
         }
+        /*If description is null, we are replacing null with 'null_string' so that we can sort the dataset
+        * properly to validate against API response*/
         for (WebElement element : repositoriesWithoutDesc) {
-            repositoryDetails_UI.putIfAbsent(element.getText(), null);
+            repositoryDetails_UI.putIfAbsent(element.getText(), "null");
+            LOGGER.info("No description is shown on UI for the repository: "+element.getText());
         }
-        //LOGGER.info("Map from UI:::"+repositoryDetails_UI);
+        LOGGER.info("Repository Details from UI: "+repositoryDetails_UI);
         return repositoryDetails_UI;
     }
 
+    private String formatRepoNamesRemoveArchivedString(List<WebElement> list, int index) {
+        return list.get(index).getText().replaceAll(" Archived", "");
+    }
+
+    /*This method is used mainly to get user input for GitHub organization.
+    * If user do not provide input, default value will be picked up from configuration and will be returned
+    * for further execution.*/
     public String getOrg() throws IOException {
         String org = System.getProperty("org");
         if (org == null || org.isEmpty())
             org = getPropertyValue("org");
         return org;
-    }
-
-    private String formatRepoNamesRemoveArchivedString(List<WebElement> list, int index) {
-        return list.get(index).getText().replaceAll(" Archived", "");
     }
 }

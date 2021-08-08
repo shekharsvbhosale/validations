@@ -22,6 +22,8 @@
     <rest-assured.version>4.4.0</rest-assured.version>
     <log4j-api.version>2.14.1</log4j-api.version>
     <log4j-core.version>2.14.1</log4j-core.version>
+    <slf4j-simple.version>2.0.0-alpha1</slf4j-simple.version>
+    <slf4j-api.version>2.0.0-alpha1</slf4j-api.version>
     <org.json.version>20210307</org.json.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>8</maven.compiler.source>
@@ -75,6 +77,18 @@
       <version>${log4j-core.version}</version>
     </dependency>
     <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+          <version>${slf4j-simple.version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+          <version>${slf4j-api.version}</version>
+          <scope>test</scope>
+      </dependency>
+    <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <version>${testng.version}</version>
@@ -104,7 +118,7 @@
     <testOutputDirectory>target/classes</testOutputDirectory>
     <resources>
       <resource>
-        <directory>src/main/resources,src/test/resources</directory>
+        <directory>src/main/resources</directory>
         <filtering>true</filtering>
         <includes>
           <include>*.properties</include>

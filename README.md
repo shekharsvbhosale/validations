@@ -1,6 +1,19 @@
 # Goal
 Validate names and descriptions of repositories displayed in repository tab of GitHub for provided organization. Default organization is set to `django` Comparison will be between the data shown on UI and data received in respective API response. 
 
+
+  >**Index**
+  * [Project Configuration](#project-configuration)
+  * [PageObjects Pattern](#pageobjects-pattern)
+  * [Object Repository](#object-repository)
+  * [Configuration Handler](#configuration-handler)
+  * [Build Automation Using Maven](#build-automation-using-maven)
+  * [Utilities](#utilities)
+  * [Logging Mechanism](#logging-mechanism)
+  * [HTML Reporting](#html-reporting)
+  * [CICD Configuration](#cicd-configuration)
+  * [Known Limitations](#known-limitations)
+
 ## Project Configuration
 This project is based out of Selenium WebDriver and TestNG. Additionally, you would need to have following apps / libraries configured on the machine where test would be run.
 - [Apache Maven 3.5+](https://maven.apache.org/)
@@ -16,18 +29,6 @@ This project is based out of Selenium WebDriver and TestNG. Additionally, you wo
 | Mozilla Firefox | 90.0.2 (64-bit) | 0.29.1 (970ef713fe58 2021-04-08 23:34 +0200) |
 | Microsoft Edge | 92.0.902.62 | MSEdgeDriver 92.0.902.55 (2f31ea24c029d582f5472682b25153751b8021b3) |
 
-  >**Index**
-  * [PageObjects Pattern](#pageobjects-pattern)
-  * [Object Repository](#object-repository)
-  * [Configuration Handler](#configuration-handler)
-  * [Build Automation Using Maven](#build-automation-using-maven)
-  * [Utilities](#utilities)
-  * [Logging Mechanism](#logging-mechanism)
-  * [HTML Reporting](#html-reporting)
-  * [CICD Configuration](#cicd-configuration)
-  * [Known Limitations](#known-limitations)
-  
-
 ## PageObjects Pattern
 
 * Page Object is a Design Pattern is implemented to retrieve the data and perform validations.
@@ -40,11 +41,14 @@ This project is based out of Selenium WebDriver and TestNG. Additionally, you wo
 public class PageCore implements UIElementsImpl {
     public WebDriver driver;
     public WebDriverWait driverWait;
-
-    public PageCore(WebDriver _driver) {
-        this.driver = _driver;
-        driverWait = new WebDriverWait(driver, Duration.ofSeconds(2));
-    }
+  public WebElement fluentWaitWithCustomTimeout(String locatorKey, int timeout) throws TimeoutException {
+    By waitElement = locatorParser.getElementLocator(locatorKey);
+    Wait<WebDriver> fluentWait = new FluentWait<>(driver)
+            .withTimeout(Duration.ofSeconds(timeout))
+            .pollingEvery(Duration.ofSeconds(1))
+            .ignoring(NoSuchElementException.class, TimeoutException.class);
+    return fluentWait.until(driver -> driver.findElement(waitElement));
+  }
 }
 ```
 **Page Object**
@@ -130,11 +134,11 @@ public String getOrg() {
 > For default configuration. This will read inputs from properties file. Default **organization** and **browser** is set to **django** and **Google Chrome** respectively.
 > 
   > `mvn clean install`
-> 
+
 > For custom configuration. This will proceeds with user provided inputs.
 >
 > `mvn clean` -Dbrowser="firefox" -Dorg="apache" `install`
->
+
 > If org is not provided, execution will proceed with default org on provided browser in this case.
 > 
 > `mvn clean` -Dbrowser="edge" `install`
@@ -188,9 +192,9 @@ public class ResponseParser {
 21:31:59.959 [main] INFO  validations.GitHubRepoListTests - Correct instance is opened: https://github.com/django
 21:32:05.700 [main] INFO  validations.GitHubRepoListTests - Validating repository description...
 21:32:07.089 [main] INFO  pages.GitHubRepoList - No description is shown on UI for the repository: django-contrib-comments
-21:32:07.123 [main] INFO  pages.GitHubRepoList - Repository Details from UI: {django=The Web framework for perfectionists with deadlines., django-docs-translations=Translations of the Django documentation. Questions and discussions happen on https://groups.google.com/forum/#!forum/django-i18n, djangoproject.com=Source code to djangoproject.com, daphne=Django Channels HTTP/WebSocket server, django-localflavor=Country-specific Django helpers, formerly of contrib fame, asgiref=ASGI specification and utilities, djangosnippets.org=The code that powers djangosnippets.org, it allows users to post and share useful "snippets" of code., channels_redis=Redis channel layer backend for Django Channels, django-docker-box=Run the Django test suite across all supported databases and python versions, channels=Developer-friendly asynchrony for Django, code.djangoproject.com=Configuration for Django's Trac instance (code.djangoproject.com), deps=Django Enhancement Proposals, ticketbot=Django's IRC ticketbot. Linkifies tickets and changesets. Hangs out in #django and #django-dev., djangobench=Harness and benchmarks for evaluating Django's performance over time, code-of-conduct=Internal documentation of the DSF Code of Conduct committee, djangopeople=A geographical community site for Django developers, asgi_ipc=IPC-based ASGI channel layer, django-box=VM to run the Django test suite. ARCHIVED Please use https://github.com/django/django-docker-box, django-contrib-comments=null, django-fuzzers=null}
+21:32:07.123 [main] INFO  pages.GitHubRepoList - Repository Details from UI: {django=The Web framework for perfectionists with deadlines., django-docs-translations=Translations of the Django documentation. Questions and discussions happen on https://groups.google.com/forum/#!forum/django-i18n, djangoproject.com=Source code to djangoproject.com, daphne=Django Channels HTTP/WebSocket server, django-localflavor=Country-specific Django helpers, formerly of contrib fame, asgiref=ASGI specification and utilities, djangosnippets.org=The code that powers djangosnippets.org, it allows users to post and share useful "snippets" of code., channels_redis=Redis channel layer backend for Django Channels, django-docker-box=Run the Django test suite across all supported databases and python versions, channels=Developer-friendly asynchrony for Django, code.djangoproject.com=Configuration for Django's Trac instance (code.djangoproject.com), deps=Django Enhancement Proposals, ticketbot=Django's IRC ticketbot. Linkifies tickets and changesets. Hangs out in #django and #django-dev., djangobench=Harness and benchmarks for evaluating Django's performance over time, code-of-conduct=Internal documentation of the DSF Code of Conduct committee, djangopeople=A geographical community site for Django developers, asgi_ipc=IPC-based ASGI channel layer, django-box=VM to run the Django test suite. ARCHIVED Please use https://github.com/django/django-docker-box, django-contrib-comments=null}
 21:32:35.009 [main] INFO  utilities.ResponseParser - Description is null/empty from retrieved API response for the repository: django-contrib-comments
-21:32:35.009 [main] INFO  utilities.ResponseParser - Repository Details from API: {django=The Web framework for perfectionists with deadlines., django-docs-translations=Translations of the Django documentation. Questions and discussions happen on https://groups.google.com/forum/#!forum/django-i18n, djangoproject.com=Source code to djangoproject.com, daphne=Django Channels HTTP/WebSocket server, django-localflavor=Country-specific Django helpers, formerly of contrib fame, asgiref=ASGI specification and utilities, djangosnippets.org=The code that powers djangosnippets.org, it allows users to post and share useful "snippets" of code., channels_redis=Redis channel layer backend for Django Channels, django-docker-box=Run the Django test suite across all supported databases and python versions, django-contrib-comments=null, channels=Developer-friendly asynchrony for Django, code.djangoproject.com=Configuration for Django's Trac instance (code.djangoproject.com), deps=Django Enhancement Proposals, ticketbot=Django's IRC ticketbot. Linkifies tickets and changesets. Hangs out in #django and #django-dev., djangobench=Harness and benchmarks for evaluating Django's performance over time, code-of-conduct=Internal documentation of the DSF Code of Conduct committee, django-fuzzers=null, djangopeople=A geographical community site for Django developers, asgi_ipc=IPC-based ASGI channel layer, django-box=VM to run the Django test suite. ARCHIVED Please use https://github.com/django/django-docker-box}
+21:32:35.009 [main] INFO  utilities.ResponseParser - Repository Details from API: {django=The Web framework for perfectionists with deadlines., django-docs-translations=Translations of the Django documentation. Questions and discussions happen on https://groups.google.com/forum/#!forum/django-i18n, djangoproject.com=Source code to djangoproject.com, daphne=Django Channels HTTP/WebSocket server, django-localflavor=Country-specific Django helpers, formerly of contrib fame, asgiref=ASGI specification and utilities, djangosnippets.org=The code that powers djangosnippets.org, it allows users to post and share useful "snippets" of code., channels_redis=Redis channel layer backend for Django Channels, django-docker-box=Run the Django test suite across all supported databases and python versions, django-contrib-comments=null, channels=Developer-friendly asynchrony for Django, code.djangoproject.com=Configuration for Django's Trac instance (code.djangoproject.com), deps=Django Enhancement Proposals, ticketbot=Django's IRC ticketbot. Linkifies tickets and changesets. Hangs out in #django and #django-dev., djangobench=Harness and benchmarks for evaluating Django's performance over time, code-of-conduct=Internal documentation of the DSF Code of Conduct committee, djangopeople=A geographical community site for Django developers, asgi_ipc=IPC-based ASGI channel layer, django-box=VM to run the Django test suite. ARCHIVED Please use https://github.com/django/django-docker-box}
 21:32:35.009 [main] INFO  validations.GitHubRepoListTests - Repository description shown on UI matches with that retrieved from the API response.
 21:32:35.009 [main] INFO  listeners.TestReportListener - validations.GitHubRepoListTests.validateRepositoryDescriptionWithAPIResponse test is succeeded.
 21:32:41.861 [main] INFO  validations.GitHubRepoListTests - Validating repository name...

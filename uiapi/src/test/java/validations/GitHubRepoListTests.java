@@ -38,8 +38,14 @@ public class GitHubRepoListTests extends TestCore {
         String org = gitHubRepoList.getOrg();
         gitHubRepoList.openInstance();
         String title = gitHubRepoList.getTitleOfPage();
+
         Assert.assertTrue(title.contains(org.substring(1, 3)));
-        LOGGER.info("Correct instance is opened: " + gitHubRepoList.getCurrentURL());
+        boolean result = title.contains(org.substring(1, 3));
+        if(result)
+            LOGGER.info("Correct instance is opened: " + gitHubRepoList.getCurrentURL());
+        else
+            LOGGER.error("Invalid instance.");
+        Assert.assertTrue(result);
     }
 
     /*Method to open repository tab for provided organization
@@ -77,9 +83,12 @@ public class GitHubRepoListTests extends TestCore {
                     + org + "/repositories";
         else
             expectedURL = GitHubRepoList.getPropertyValue("auturl") + "/"+ org + "?tab=repositories";
-        Assert.assertEquals(gitHubRepoList.getCurrentURL(), expectedURL);
-
-        LOGGER.info("Repositories tab is opened.");
+        boolean result = gitHubRepoList.getCurrentURL().equals(expectedURL);
+        if(result)
+            LOGGER.info("Repositories tab is opened.");
+        else
+            LOGGER.error("Repositories tab is not opened.");
+        Assert.assertTrue(result);
     }
 
     /*Method to validate Repository name shown on UI and received from API response.
@@ -109,8 +118,12 @@ public class GitHubRepoListTests extends TestCore {
         Collections.sort(uikey);
         apikey = new ArrayList<>(responseParser.getRepositoryNameAndDescriptionFromAPI(org).keySet());
         Collections.sort(apikey);
-        Assert.assertEquals(apikey, uikey);
-        LOGGER.info("Repository name shown on UI matches with that retrieved from the API response.");
+        boolean result = apikey.equals(uikey);
+        if(result)
+            LOGGER.info("Repository name shown on UI matches with that retrieved from the API response.");
+        else
+            LOGGER.error("Repository name shown on UI doesn't match with that retrieved from the API response.");
+        Assert.assertTrue(result);
     }
 
     /*Method to validate Repository description shown on UI and received from API response.
@@ -139,7 +152,11 @@ public class GitHubRepoListTests extends TestCore {
         Collections.sort(uivalue);
         apivalue = new ArrayList<>(responseParser.getRepositoryNameAndDescriptionFromAPI(org).values());
         Collections.sort(apivalue);
-        Assert.assertEquals(apivalue, uivalue);
-        LOGGER.info("Repository description shown on UI matches with that retrieved from the API response.");
+        boolean result = apivalue.equals(uivalue);
+        if(result)
+            LOGGER.info("Repository description shown on UI matches with that retrieved from the API response.");
+        else
+            LOGGER.error("Repository description shown on UI doesn't match with that retrieved from the API response.");
+        Assert.assertTrue(result);
     }
 }
